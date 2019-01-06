@@ -109,7 +109,7 @@ namespace ElevatorGeneticAlgorithm.Model
             CurrentFloor = person.CurrentFloor;
 
             var getoffSameFloorPeople = _carryingPeople.Where(x => person.CurrentFloor == x.TargetFloor).ToList();//遅延評価の参照の握りがよくわからんのであとで検証。
-            if (0 < getoffSameFloorPeople.Count)
+            if (getoffSameFloorPeople.Any())
             {
                 GetOff(getoffSameFloorPeople);
             }

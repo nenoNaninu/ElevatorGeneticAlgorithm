@@ -51,12 +51,14 @@ namespace ElevatorGeneticAlgorithm
                     //載せられなかったら動いて降ろしていくほかない
                     if (!canGetOn)
                     {
-                        elevator.Move();
+                        elevator.GetOffAllPerson();
+                        elevator.GetOn(person);
                     }
                 }
-                else//動いている方向と逆だったら、いまいる全乗客が下りるまで稼働。
+                else//動いている方向と逆だったら、いまいる全乗客が下りるまで稼働。そのあとに乗る。
                 {
                     elevator.GetOffAllPerson();
+                    elevator.GetOn(person);
                 }
             }
         }
