@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace ElevatorGeneticAlgorithm.Model
 {
@@ -13,13 +14,35 @@ namespace ElevatorGeneticAlgorithm.Model
 
     public class Genetic : IEnumerable<int>
     {
-        private List<int> GeneticList { get; set; }
-        public int Count => GeneticList.Count;
+        private List<int> _geneticList;
         public double EvaluationValue { get; set; } = double.MinValue;
 
+        /// <summary>
+        /// 遺伝子の長さ
+        /// </summary>
+        public int Length => _geneticList.Count;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="genetic">遺伝子の中身</param>
         public Genetic(List<int> genetic)
         {
-            GeneticList = genetic;
+            _geneticList = genetic;
+        }
+
+        /// <summary>
+        /// シリアライザとデシリアライザのためだけにデフォルトコンストラクタは残してある。
+        /// </summary>
+        public Genetic()
+        {
+
+        }
+
+
+        public Genetic(Genetic genetic)
+        {
+            _geneticList = new List<int>(genetic._geneticList);
         }
 
         /// <summary>
@@ -27,7 +50,7 @@ namespace ElevatorGeneticAlgorithm.Model
         /// <param name="geneticLength">長さ</param>
         public Genetic(int geneticLength)
         {
-            GeneticList = RandomList(geneticLength);
+            _geneticList = RandomList(geneticLength);
         }
 
         public double Evaluate(EvaluateMethod method, List<Person> people)
@@ -70,7 +93,7 @@ namespace ElevatorGeneticAlgorithm.Model
 
         public IEnumerator<int> GetEnumerator()
         {
-            foreach (var g in GeneticList)
+            foreach (var g in _geneticList)
             {
                 yield return g;
             }
@@ -83,8 +106,8 @@ namespace ElevatorGeneticAlgorithm.Model
 
         public int this[int idx]
         {
-            get => GeneticList[idx];
-            set => GeneticList[idx] = value;
+            get => _geneticList[idx];
+            set => _geneticList[idx] = value;
         }
     }
 }

@@ -185,5 +185,58 @@ namespace ElevatorGeneticAlgorithm.Model
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="genetic"></param>
+        /// <param name="peopleList">よごれます。</param>
+        public static void Simulate(Genetic genetic, List<Person> peopleList)
+        {
+            var elevator = new Elevator(Database.Configuration.MaxLoadingNum);
+
+            //各遺伝子について。
+            foreach (int id in genetic)
+            {
+                var person = peopleList.First(p => p.Id == id);
+
+                //エレベータが上に動いているのに客がエレベータより下にいるのに上に行くからと言って
+                //下に戻るのはおかしい。なので制限。
+                if (elevator.Direction == MoveDirection.GoAbove)
+                {
+                    if (person.CurrentFloor < elevator.CurrentFloor)
+                    {
+                        elevator.GetOffAllPerson();
+                        elevator.GetOn(person);
+                    }
+                }
+                else
+                {
+                    if (elevator.CurrentFloor < person.CurrentFloor)
+                    {
+                        elevator.GetOffAllPerson();
+                        elevator.GetOn(person);
+                    }
+                }
+
+                //エレベータの動いている方向と、向かいたい方向が一致していた場合にのみ
+                if (person.Direction == elevator.Direction)
+                {
+                    bool canGetOn = elevator.GetOn(person);
+
+                    //載せられなかったら動いて降ろしていくほかない
+                    if (!canGetOn)
+                    {
+                        elevator.GetOffAllPerson();
+                        elevator.GetOn(person);
+                    }
+                }
+                else//動いている方向と逆だったら、いまいる全乗客が下りるまで稼働。そのあとに乗る。
+                {
+                    elevator.GetOffAllPerson();
+                    elevator.GetOn(person);
+                }
+            }
+        }
     }
 }

@@ -1,98 +1,165 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using ElevatorGeneticAlgorithm.Model;
 using ElevatorGeneticAlgorithm.Repository;
 
 namespace ElevatorGeneticAlgorithm
 {
-    public class GeneticAlgorithm
+    public static class GeneticAlgorithm
     {
-        /// <summary>
-        /// 評価関数
-        /// </summary>
-        public static void EvaluationFunction(Genetic genetic, List<Person> people)
-        {
 
-        }
-
-        private static void Simulate(Genetic genetic, List<Person> peopleList)
-        {
-            var elevator = new Elevator(Database.Configuration.MaxLoadingNum);
-
-            //各遺伝子について。
-            foreach (int id in genetic)
-            {
-                var person = peopleList.First(p => p.Id == id);
-
-                //エレベータが上に動いているのに客がエレベータより下にいるのに上に行くからと言って
-                //下に戻るのはおかしい。なので制限。
-                if (elevator.Direction == MoveDirection.GoAbove)
-                {
-                    if (person.CurrentFloor < elevator.CurrentFloor)
-                    {
-                        elevator.GetOffAllPerson();
-                        elevator.GetOn(person);
-                    }
-                }
-                else
-                {
-                    if (elevator.CurrentFloor < person.CurrentFloor)
-                    {
-                        elevator.GetOffAllPerson();
-                        elevator.GetOn(person);
-                    }
-                }
-
-                //エレベータの動いている方向と、向かいたい方向が一致していた場合にのみ
-                if (person.Direction == elevator.Direction)
-                {
-                    bool canGetOn = elevator.GetOn(person);
-
-                    //載せられなかったら動いて降ろしていくほかない
-                    if (!canGetOn)
-                    {
-                        elevator.GetOffAllPerson();
-                        elevator.GetOn(person);
-                    }
-                }
-                else//動いている方向と逆だったら、いまいる全乗客が下りるまで稼働。そのあとに乗る。
-                {
-                    elevator.GetOffAllPerson();
-                    elevator.GetOn(person);
-                }
-            }
-        }
-
-        public static void Learning(int iterationCount, List<Genetic> genetics, List<Person> peoples)
+        public static async Task Learning(int iterationCount, List<Genetic> genetics, List<Person> peoples, int pairNumberOfCrossoverParents, double mutationRate,int genericNumber)
         {
             for (int i = 0; i < iterationCount; i++)
             {
-                //まずは評価するまえに評価できるだけの準備をする。
-                var peopleList = new List<Person>(peoples);
+                //遺伝的アルゴリズム
+                
+                genetics = CirculationCrossover(genetics, pairNumberOfCrossoverParents, mutationRate);
 
                 foreach ((var genetic, var gIdx) in genetics.Select((item, idx) => (item, idx)))
                 {
-
-                    //シミュレーション
-                    Simulate(genetic, peopleList);
-
-                    //この段階で今の遺伝子がどれくらいの評価なのか評価。
-                    genetic.Evaluate(EvaluateMethod.MinimizeIndividualWaitingTime, peopleList);
+                    EvaluateGenetic(genetic, peoples);
                     Console.WriteLine($"Iteration: {i,3:D} Genetic: {gIdx,3:D} Evaluate: {genetic.EvaluationValue}");
-
-                    //その後汚れたリストの中を綺麗にする。
-                    foreach (var person in peoples)
-                    {
-                        person.TakeElevatorTime = 0;
-                    }
-
                 }
 
-                //ここで遺伝的アルゴリズムがさく裂。
-                //循環交換と突然変異だけでいいや。
+                //淘汰方法： ルーレット選択．ただし，上位 20 個はエリート選択で選ぶものとする
+
+
+                //保存。
+                await Database.SaveGenetic(genetics, i);
 
             }
         }
+
+        /// <summary>
+        /// 交配方法は順序交叉
+        /// 突然変異は逆位
+        /// </summary>
+        private static List<Genetic> CirculationCrossover(List<Genetic> genetics, int pairNumberOfCrossoverParents, double mutationRate)
+        {
+            var newGeneticList = new List<Genetic>(genetics);
+            var rand = new Random();
+
+            for (int i = 0; i < pairNumberOfCrossoverParents; i++)
+            {
+                Console.WriteLine($"CirculationCrossover: {i,3:D}");
+                //親の選択
+                var count = newGeneticList.Count;
+                var parentIdx1 = rand.Next(0, count - 1);
+                var parentIdx2 = rand.Next(0, count - 1);
+
+                while (parentIdx1 == parentIdx2)
+                {
+                    parentIdx2 = rand.Next(0, count - 1);
+                }
+
+                //突然変異
+                if (mutationRate < rand.NextDouble())
+                {
+                    var mutatedGenetic1 = InversionMutate(newGeneticList[parentIdx1]);
+                    var mutatedGenetic2 = InversionMutate(newGeneticList[parentIdx2]);
+
+                    newGeneticList.Add(mutatedGenetic1);
+                    newGeneticList.Add(mutatedGenetic2);
+
+                    continue;
+                }
+
+                var parent1 = newGeneticList[parentIdx1];
+                var parent2 = newGeneticList[parentIdx2];
+
+                var child1 = CirculationCrossoverHelper(parent1, parent2);
+                var child2 = CirculationCrossoverHelper(parent2, parent1);
+
+                newGeneticList.Add(child1);
+                newGeneticList.Add(child2);
+
+            }
+
+            return newGeneticList;
+        }
+
+        private static Genetic CirculationCrossoverHelper(Genetic parent1, Genetic parent2)
+        {
+            var rand = new Random();
+            //切れ目の選択
+            var partation = rand.Next(0, parent1.Length - 1);
+
+            var left = parent1.Where((_, idx) => idx < partation).ToList();
+            var right = new List<int>();
+
+            foreach (var id in parent2)
+            {
+                if (!left.Contains(id))
+                {
+                    right.Add(id);
+                }
+            }
+
+            left.AddRange(right);
+            return new Genetic(left);
+        }
+
+
+        /// <summary>
+        /// 突然変異(逆位)
+        /// </summary>
+        private static Genetic InversionMutate(Genetic genetic)
+        {
+            var random = new Random();
+
+            var newGenetic = new Genetic(genetic);
+
+            var length = newGenetic.Length;
+
+            var idx1 = random.Next(0, length - 1);
+            var idx2 = random.Next(0, length - 1);
+
+            var tmp = newGenetic[idx1];
+            newGenetic[idx1] = newGenetic[idx2];
+            newGenetic[idx2] = tmp;
+
+            return newGenetic;
+        }
+
+
+        public static void EvaluateGenetic(Genetic genetic, List<Person> people)
+        {
+
+            Elevator.Simulate(genetic, people);
+            genetic.Evaluate(EvaluateMethod.MinimizeIndividualWaitingTime, people);
+
+            foreach (var person in people)
+            {
+                person.TakeElevatorTime = double.MaxValue;
+            }
+        }
+
+
+        /// <summary>
+        /// ルーレット方式で淘汰
+        /// 上位20はエリート選択。
+        /// </summary>
+        private static List<Genetic> RouletteSelection(List<Genetic> genetics,int genericNumber,int eliteNumber)
+        {
+            var newGeneticList = genetics.OrderBy(g => g.EvaluationValue)
+                .Where((_, idx) => idx < eliteNumber).ToList();
+
+            var stock = genetics.OrderBy(g => g.EvaluationValue)
+                .Where((_, idx) => eliteNumber <= idx).ToList();
+
+
+            while(newGeneticList.Count >= genericNumber)
+            {
+
+            }
+
+        }
+
+
+
     }
 }

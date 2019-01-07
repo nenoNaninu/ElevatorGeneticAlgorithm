@@ -88,6 +88,26 @@ namespace ElevatorGeneticAlgorithm.Repository
             }
         }
 
+        public static async Task SaveGenetic(List<Genetic> genetics, int iteration)
+        {
+
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+            var targetDir = Path.Combine(appDataPath, "ElevatorGA", $"{DateTime.Now:yyyyMMddHHmmss}");
+
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            var targetFilePath = Path.Combine(targetDir, $"Genetics{iteration,000}.json");
+
+            //それは保存しておく。
+            using (var sw = new StreamWriter(targetFilePath, false, Encoding.UTF8))
+            {
+                await JsonSerializer.SerializeAsync(sw.BaseStream, genetics, Utf8Json.Resolvers.StandardResolver.AllowPrivate);
+            }
+        }
 
 
     }

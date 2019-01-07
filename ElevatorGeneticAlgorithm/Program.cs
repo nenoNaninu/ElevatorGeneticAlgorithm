@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using ElevatorGeneticAlgorithm.Model;
+﻿using ElevatorGeneticAlgorithm.Model;
 using ElevatorGeneticAlgorithm.Repository;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ElevatorGeneticAlgorithm
 {
     class Program
     {
-
-
         static void Main(string[] args)
         {
             Task.Run(async () =>
             {
                 var totalPeopleNum = Database.Configuration.TotalPeopleNumber;
                 var genericNumber = Database.Configuration.GenericNumber;
-
+                var pairNumber = Database.Configuration.PairNumberOfCrossoverParents;
+                var mutationRate = Database.Configuration.MutationRate;
+                
                 //遺伝子の配列。
                 var generics = new List<Genetic>(genericNumber);
 
@@ -30,12 +28,10 @@ namespace ElevatorGeneticAlgorithm
                 //人の配列
                 var peoples = await Database.ReadPeoples();
 
-                ////最大積載人数
+                //ここから評価関数
+                await GeneticAlgorithm.Learning(1, generics, peoples, pairNumber, mutationRate, genericNumber);
 
-                ////ここから評価関数
-                GeneticAlgorithm.Learning(1, generics, peoples);
-
-                Console.WriteLine($"{DateTime.Now:yyyyMMddHHmmss}");
+                Console.WriteLine("finish!");
                 Console.ReadLine();
 
             }).Wait();

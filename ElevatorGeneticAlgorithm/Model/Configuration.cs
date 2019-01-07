@@ -8,9 +8,9 @@
         public int TotalPeopleNumber { get; set; } = 100;
 
         /// <summary>
-        /// 遺伝子長
+        /// 遺伝子の数。
         /// </summary>
-        public int GenericNumber { get; set; } = 100;
+        public int GenericNumber { get; set; } = 200;
 
         /// <summary>
         /// ビルの一番上の回数。
@@ -36,5 +36,14 @@
         /// 規定値では人を5分間の間流れてくると仮定。
         /// </summary>
         public double SamplingTimeSpan { get; set; } = 5 * 60;
+
+        /// <summary>
+        /// 交叉時の親のペア数。
+        /// </summary>
+        public int PairNumberOfCrossoverParents { get; set; } = 250;
+
+
+        public double MutationRate { get; set; } = 0.05;
+
     }
 }
