@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ElevatorGeneticAlgorithm.Model;
 using ElevatorGeneticAlgorithm.Repository;
@@ -8,9 +9,9 @@ namespace ElevatorGeneticAlgorithm
     public class GeneticAlgorithm
     {
         /// <summary>
-        /// 目的関数
+        /// 評価関数
         /// </summary>
-        public static void ObjectiveFunction()
+        public static void EvaluationFunction(Genetic genetic, List<Person> people)
         {
 
         }
@@ -70,14 +71,15 @@ namespace ElevatorGeneticAlgorithm
                 //まずは評価するまえに評価できるだけの準備をする。
                 var peopleList = new List<Person>(peoples);
 
-                foreach (var genetic in genetics)
+                foreach ((var genetic, var gIdx) in genetics.Select((item, idx) => (item, idx)))
                 {
 
                     //シミュレーション
                     Simulate(genetic, peopleList);
 
-
                     //この段階で今の遺伝子がどれくらいの評価なのか評価。
+                    genetic.Evaluate(EvaluateMethod.MinimizeIndividualWaitingTime, peopleList);
+                    Console.WriteLine($"Iteration: {i,3:D} Genetic: {gIdx,3:D} Evaluate: {genetic.EvaluationValue}");
 
                     //その後汚れたリストの中を綺麗にする。
                     foreach (var person in peoples)
@@ -86,8 +88,6 @@ namespace ElevatorGeneticAlgorithm
                     }
 
                 }
-
-                //評価
 
                 //ここで遺伝的アルゴリズムがさく裂。
                 //循環交換と突然変異だけでいいや。

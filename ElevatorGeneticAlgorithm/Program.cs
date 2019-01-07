@@ -30,10 +30,13 @@ namespace ElevatorGeneticAlgorithm
                 //人の配列
                 var peoples = await Database.ReadPeoples();
 
-                //最大積載人数
+                ////最大積載人数
 
-                //ここから評価関数
-                GeneticAlgorithm.Learning(100, generics,peoples);
+                ////ここから評価関数
+                GeneticAlgorithm.Learning(1, generics, peoples);
+
+                Console.WriteLine($"{DateTime.Now:yyyyMMddHHmmss}");
+                Console.ReadLine();
 
             }).Wait();
         }

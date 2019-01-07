@@ -135,35 +135,24 @@ namespace ElevatorGeneticAlgorithm.Model
         /// </summary>
         public void GetOffAllPerson()
         {
-            if (Direction == MoveDirection.GoAbove)
+            if (_carryingPeople.Any())
             {
-                var top = _carryingPeople.Max(x => x.TargetFloor);
-                Timer += (top - CurrentFloor) * Database.Configuration.ElevatorSpeed;
-                GetOff(_carryingPeople);
-                CurrentFloor = top;
-                Direction = MoveDirection.GoBottom;
-            }
-            else
-            {
-                var bottom = _carryingPeople.Min(x => x.TargetFloor);
-                Timer += (CurrentFloor - bottom) * Database.Configuration.ElevatorSpeed;
-                GetOff(_carryingPeople);
-                CurrentFloor = bottom;
-                Direction = MoveDirection.GoAbove;
-            }
-        }
-
-
-        public void Move()
-        {
-            //上に行く場合
-            if (Direction == MoveDirection.GoAbove)
-            {
-
-            }
-            else//下に行く場合
-            {
-
+                if (Direction == MoveDirection.GoAbove)
+                {
+                    var top = _carryingPeople.Max(x => x.TargetFloor);
+                    Timer += (top - CurrentFloor) * Database.Configuration.ElevatorSpeed;
+                    GetOff(_carryingPeople);
+                    CurrentFloor = top;
+                    Direction = MoveDirection.GoBottom;
+                }
+                else
+                {
+                    var bottom = _carryingPeople.Min(x => x.TargetFloor);
+                    Timer += (CurrentFloor - bottom) * Database.Configuration.ElevatorSpeed;
+                    GetOff(_carryingPeople);
+                    CurrentFloor = bottom;
+                    Direction = MoveDirection.GoAbove;
+                }
             }
         }
 
@@ -178,12 +167,22 @@ namespace ElevatorGeneticAlgorithm.Model
         /// <param name="getoffPeople"></param>
         public void GetOff(List<Person> getoffPeople)
         {
-            var stopFloorNum = getoffPeople.Select(x => x.TargetFloor).Distinct().Count();
-            Timer += stopFloorNum * Database.Configuration.OpenDoorTime;
-
-            foreach (var getoffPerson in getoffPeople)
+            if (getoffPeople.Any())
             {
-                _carryingPeople.Remove(getoffPerson);
+                var stopFloorNum = getoffPeople.Select(x => x.TargetFloor).Distinct().Count();
+                Timer += stopFloorNum * Database.Configuration.OpenDoorTime;
+
+                if (getoffPeople == _carryingPeople)
+                {
+                    _carryingPeople.Clear();
+                }
+                else
+                {
+                    foreach (var getoffPerson in getoffPeople)
+                    {
+                        _carryingPeople.Remove(getoffPerson);
+                    }
+                }
             }
         }
     }

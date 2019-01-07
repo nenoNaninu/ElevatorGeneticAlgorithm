@@ -15,6 +15,7 @@ namespace ElevatorGeneticAlgorithm.Model
     {
         private List<int> GeneticList { get; set; }
         public int Count => GeneticList.Count;
+        public double EvaluationValue { get; set; } = double.MinValue;
 
         public Genetic(List<int> genetic)
         {
@@ -29,12 +30,12 @@ namespace ElevatorGeneticAlgorithm.Model
             GeneticList = RandomList(geneticLength);
         }
 
-
-        public double Evaluate(EvaluateMethod method)
+        public double Evaluate(EvaluateMethod method, List<Person> people)
         {
             if (method == EvaluateMethod.MinimizeIndividualWaitingTime)
             {
-                return EvaluateIndividualWaitingTime();
+                EvaluationValue = EvaluateIndividualWaitingTime(people);
+                return EvaluationValue;
             }
             else if (method == EvaluateMethod.MinimizeOverallWaitTime)
             {
@@ -47,14 +48,14 @@ namespace ElevatorGeneticAlgorithm.Model
         }
 
 
-        private double EvaluateIndividualWaitingTime()
+        private double EvaluateIndividualWaitingTime(List<Person> people)
         {
-
+            return people.Select(x => x.WaitingTime * x.WaitingTime).Sum();
         }
 
         private double EvaluateOverallWaitTime()
         {
-
+            return -1;
         }
 
         private List<int> RandomList(int num)

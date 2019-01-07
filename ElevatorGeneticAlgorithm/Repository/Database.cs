@@ -34,6 +34,13 @@ namespace ElevatorGeneticAlgorithm.Repository
 
             var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
+            var targetDir = Path.Combine(appDataPath, "ElevatorGA");
+
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
             string targetFilePath = Path.Combine(appDataPath, "ElevatorGA/peoples.json");
 
             if (File.Exists(targetFilePath))
@@ -68,20 +75,20 @@ namespace ElevatorGeneticAlgorithm.Repository
                         TargetFloor = targetFloor,
                         CurrentFloor = currentFloor,
                         StartWaitingTime = rand.NextDouble() * span,
-                });
-            }
+                    });
+                }
 
-            //それは保存しておく。
-            using (var sw = new StreamWriter(targetFilePath, false, Encoding.UTF8))
-            {
-                await JsonSerializer.SerializeAsync(sw.BaseStream, _peoples);
-            }
+                //それは保存しておく。
+                using (var sw = new StreamWriter(targetFilePath, false, Encoding.UTF8))
+                {
+                    await JsonSerializer.SerializeAsync(sw.BaseStream, _peoples);
+                }
 
-            return _peoples;
+                return _peoples;
+            }
         }
+
+
+
     }
-
-
-
-}
 }
