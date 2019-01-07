@@ -26,11 +26,10 @@ namespace ElevatorGeneticAlgorithm
                 }
 
                 //淘汰方法： ルーレット選択．ただし，上位 20 個はエリート選択で選ぶものとする
-
+                genetics = RouletteSelection(genetics, genericNumber, 20);
 
                 //保存。
                 await Database.SaveGenetic(genetics, i);
-
             }
         }
 
@@ -141,8 +140,11 @@ namespace ElevatorGeneticAlgorithm
 
         /// <summary>
         /// ルーレット方式で淘汰
-        /// 上位20はエリート選択。
         /// </summary>
+        /// <param name="genetics">評価済みのgeneticリスト</param>
+        /// <param name="genericNumber"></param>
+        /// <param name="eliteNumber">ルーレット回す前に次世代になることが確約された遺伝子の数。</param>
+        /// <returns></returns>
         private static List<Genetic> RouletteSelection(List<Genetic> genetics,int genericNumber,int eliteNumber)
         {
             var newGeneticList = genetics.OrderBy(g => g.EvaluationValue)
@@ -151,15 +153,21 @@ namespace ElevatorGeneticAlgorithm
             var stock = genetics.OrderBy(g => g.EvaluationValue)
                 .Where((_, idx) => eliteNumber <= idx).ToList();
 
+            var roulette = new Roulette(stock);
 
             while(newGeneticList.Count >= genericNumber)
             {
+                var idx = roulette.SelectIdx();
+                var genetic = stock[idx];
+                if (newGeneticList.Contains(genetic))
+                {
+                    continue;
+                }
 
+                newGeneticList.Add(genetic);
             }
 
+            return newGeneticList;
         }
-
-
-
     }
 }

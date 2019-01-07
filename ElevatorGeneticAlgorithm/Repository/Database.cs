@@ -12,7 +12,28 @@ namespace ElevatorGeneticAlgorithm.Repository
     {
         private static List<Person> _peoples = null;
         private static Configuration _configuration = null;
+        private static string _targetDir = null;
 
+        private static string TargetDir
+        {
+            get
+            {
+                if (_targetDir != null) return _targetDir;
+
+                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                var targetDir = Path.Combine(appDataPath, "ElevatorGA", $"{DateTime.Now:yyyyMMddHHmmss}");
+
+                if (!Directory.Exists(targetDir))
+                {
+                    Directory.CreateDirectory(targetDir);
+                }
+
+                _targetDir = targetDir;
+
+                return _targetDir;
+            }
+        }
         public static Configuration Configuration => _configuration ?? (_configuration = ReadConfigurationFromFile());
 
         /// <summary>
@@ -47,6 +68,7 @@ namespace ElevatorGeneticAlgorithm.Repository
             {
                 using (var sr = new StreamReader(targetFilePath, Encoding.UTF8))
                 {
+                    Console.WriteLine($"read people data from {targetFilePath}");
                     return _peoples = await JsonSerializer.DeserializeAsync<List<Person>>(sr.BaseStream);
                 }
             }
@@ -81,6 +103,7 @@ namespace ElevatorGeneticAlgorithm.Repository
                 //それは保存しておく。
                 using (var sw = new StreamWriter(targetFilePath, false, Encoding.UTF8))
                 {
+                    Console.WriteLine($"save people data from {targetFilePath}");
                     await JsonSerializer.SerializeAsync(sw.BaseStream, _peoples);
                 }
 
@@ -90,17 +113,7 @@ namespace ElevatorGeneticAlgorithm.Repository
 
         public static async Task SaveGenetic(List<Genetic> genetics, int iteration)
         {
-
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-            var targetDir = Path.Combine(appDataPath, "ElevatorGA", $"{DateTime.Now:yyyyMMddHHmmss}");
-
-            if (!Directory.Exists(targetDir))
-            {
-                Directory.CreateDirectory(targetDir);
-            }
-
-            var targetFilePath = Path.Combine(targetDir, $"Genetics{iteration,000}.json");
+            var targetFilePath = Path.Combine(TargetDir, $"Genetics{iteration,000}.json");
 
             //それは保存しておく。
             using (var sw = new StreamWriter(targetFilePath, false, Encoding.UTF8))

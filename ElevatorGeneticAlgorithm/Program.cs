@@ -29,7 +29,7 @@ namespace ElevatorGeneticAlgorithm
                 var peoples = await Database.ReadPeoples();
 
                 //ここから評価関数
-                await GeneticAlgorithm.Learning(1, generics, peoples, pairNumber, mutationRate, genericNumber);
+                await GeneticAlgorithm.Learning(1000, generics, peoples, pairNumber, mutationRate, genericNumber);
 
                 Console.WriteLine("finish!");
                 Console.ReadLine();
