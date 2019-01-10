@@ -16,6 +16,9 @@ namespace ElevatorGeneticAlgorithm
                 var genericNumber = Database.Configuration.GenericNumber;
                 var pairNumber = Database.Configuration.PairNumberOfCrossoverParents;
                 var mutationRate = Database.Configuration.MutationRate;
+                var maxCarrying = Database.Configuration.MaxLoadingNum;
+                var elevatorSpeed = Database.Configuration.ElevatorSpeed;
+                var openDoorSpeed = Database.Configuration.OpenDoorTime;
                 
                 //遺伝子の配列。
                 var generics = new List<Genetic>(genericNumber);
@@ -29,7 +32,7 @@ namespace ElevatorGeneticAlgorithm
                 var peoples = await Database.ReadPeoples();
 
                 //ここから評価関数
-                await GeneticAlgorithm.Learning(1000, generics, peoples, pairNumber, mutationRate, genericNumber);
+                await GeneticAlgorithm.Learning(1, generics, peoples, pairNumber, mutationRate, genericNumber, maxCarrying, elevatorSpeed, openDoorSpeed);
 
                 Console.WriteLine("finish!");
                 Console.ReadLine();

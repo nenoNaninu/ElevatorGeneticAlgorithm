@@ -11,7 +11,7 @@ namespace ElevatorGeneticAlgorithm
     public static class GeneticAlgorithm
     {
 
-        public static async Task Learning(int iterationCount, List<Genetic> genetics, List<Person> peoples, int pairNumberOfCrossoverParents, double mutationRate,int genericNumber)
+        public static async Task Learning(int iterationCount, List<Genetic> genetics, List<Person> peoples, int pairNumberOfCrossoverParents, double mutationRate,int genericNumber, int maxCarrying, double elevatorSpeed, double openDoorSpeed)
         {
             for (int i = 0; i < iterationCount; i++)
             {
@@ -21,7 +21,7 @@ namespace ElevatorGeneticAlgorithm
 
                 foreach ((var genetic, var gIdx) in genetics.Select((item, idx) => (item, idx)))
                 {
-                    EvaluateGenetic(genetic, peoples);
+                    EvaluateGenetic(genetic, peoples, maxCarrying, elevatorSpeed, openDoorSpeed);
                     Console.WriteLine($"Iteration: {i,3:D} Genetic: {gIdx,3:D} Evaluate: {genetic.EvaluationValue}");
                 }
 
@@ -125,10 +125,10 @@ namespace ElevatorGeneticAlgorithm
         }
 
 
-        public static void EvaluateGenetic(Genetic genetic, List<Person> people)
+        public static void EvaluateGenetic(Genetic genetic, List<Person> people, int maxCarrying, double elevatorSpeed, double openDoorSpeed)
         {
 
-            Elevator.Simulate(genetic, people);
+            Elevator.Simulate(genetic, people, maxCarrying, elevatorSpeed, openDoorSpeed);
             genetic.Evaluate(EvaluateMethod.MinimizeIndividualWaitingTime, people);
 
             foreach (var person in people)

@@ -16,7 +16,8 @@ namespace ElevatorGeneticAlgorithm.Model
         private List<Person> _carryingPeople;
         public int CurrentFloor { get; set; }
         public int NextFloor { get; set; }
-        public double Speed { get; set; }
+        public double Speed { get;}
+        public double OpenDoorTimeSpan { get; }
 
         public int MaxCarryingNum { get; }
 
@@ -24,10 +25,12 @@ namespace ElevatorGeneticAlgorithm.Model
 
         public MoveDirection Direction { get; private set; } = MoveDirection.GoAbove;
 
-        public Elevator(int maxCarrying)
+        public Elevator(int maxCarrying,double elevatorSpeed,double openDoorTimeSpan)
         {
             MaxCarryingNum = maxCarrying;
             _carryingPeople = new List<Person>(maxCarrying);
+            Speed = elevatorSpeed;
+            OpenDoorTimeSpan = openDoorTimeSpan;
         }
 
         /// <summary>
@@ -43,7 +46,7 @@ namespace ElevatorGeneticAlgorithm.Model
             if (!_carryingPeople.Any())
             {
                 Timer = person.StartWaitingTime;//エレベータが動き始める時間は
-                Timer += Math.Abs(CurrentFloor - person.CurrentFloor) * Database.Configuration.ElevatorSpeed;
+                Timer += Math.Abs(CurrentFloor - person.CurrentFloor) * Speed;
                 Direction = person.Direction;
                 _carryingPeople.Add(person);
                 person.TakeElevatorTime = Timer;
@@ -58,14 +61,14 @@ namespace ElevatorGeneticAlgorithm.Model
                 {
                     var min = _carryingPeople.Min(x => x.TargetFloor);
                     var getoffPeople = _carryingPeople.Where(x => x.TargetFloor == min).ToList();
-                    Timer += (min - CurrentFloor) * Database.Configuration.ElevatorSpeed;
+                    Timer += (min - CurrentFloor) * Speed;
                     GetOff(getoffPeople);
                 }
                 else
                 {
                     var max = _carryingPeople.Max(x => x.TargetFloor);
                     var getoffPeople = _carryingPeople.Where(x => x.TargetFloor == max).ToList();
-                    Timer += (CurrentFloor - max) * Database.Configuration.ElevatorSpeed;
+                    Timer += (CurrentFloor - max) * Speed;
                     GetOff(getoffPeople);
                 }
             }
@@ -102,10 +105,11 @@ namespace ElevatorGeneticAlgorithm.Model
             {
                 var getoffPeople = _carryingPeople.Where(x => person.CurrentFloor < x.TargetFloor).ToList();//遅延評価の参照の握りがよくわからんのであとで検証。
                 GetOff(getoffPeople);
+                GetOff(getoffPeople);
             }
 
             //personがいる階に到着。
-            Timer += Math.Abs(CurrentFloor - person.CurrentFloor) * Database.Configuration.ElevatorSpeed;
+            Timer += Math.Abs(CurrentFloor - person.CurrentFloor) * Speed;
             CurrentFloor = person.CurrentFloor;
 
             var getoffSameFloorPeople = _carryingPeople.Where(x => person.CurrentFloor == x.TargetFloor).ToList();//遅延評価の参照の握りがよくわからんのであとで検証。
@@ -116,7 +120,7 @@ namespace ElevatorGeneticAlgorithm.Model
             else
             {
                 //降りるやつがいなくてもどっちにしろ開けないといけない。
-                Timer += Database.Configuration.OpenDoorTime;
+                Timer += OpenDoorTimeSpan;
             }
 
             if (_carryingPeople.Count > MaxCarryingNum)
@@ -140,7 +144,7 @@ namespace ElevatorGeneticAlgorithm.Model
                 if (Direction == MoveDirection.GoAbove)
                 {
                     var top = _carryingPeople.Max(x => x.TargetFloor);
-                    Timer += (top - CurrentFloor) * Database.Configuration.ElevatorSpeed;
+                    Timer += (top - CurrentFloor) * Speed;
                     GetOff(_carryingPeople);
                     CurrentFloor = top;
                     Direction = MoveDirection.GoBottom;
@@ -148,7 +152,7 @@ namespace ElevatorGeneticAlgorithm.Model
                 else
                 {
                     var bottom = _carryingPeople.Min(x => x.TargetFloor);
-                    Timer += (CurrentFloor - bottom) * Database.Configuration.ElevatorSpeed;
+                    Timer += (CurrentFloor - bottom) * Speed;
                     GetOff(_carryingPeople);
                     CurrentFloor = bottom;
                     Direction = MoveDirection.GoAbove;
@@ -191,9 +195,12 @@ namespace ElevatorGeneticAlgorithm.Model
         /// </summary>
         /// <param name="genetic"></param>
         /// <param name="peopleList">よごれます。</param>
-        public static void Simulate(Genetic genetic, List<Person> peopleList)
+        /// <param name="maxCarrying"></param>
+        /// <param name="elevatorSpeed"></param>
+        /// <param name="openDoorSpeed"></param>
+        public static void Simulate(Genetic genetic, List<Person> peopleList,int maxCarrying,double elevatorSpeed,double openDoorSpeed)
         {
-            var elevator = new Elevator(Database.Configuration.MaxLoadingNum);
+            var elevator = new Elevator(maxCarrying, elevatorSpeed, openDoorSpeed);
 
             //各遺伝子について。
             foreach (int id in genetic)
