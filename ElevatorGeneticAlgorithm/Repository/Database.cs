@@ -81,14 +81,16 @@ namespace ElevatorGeneticAlgorithm.Repository
                 _peoples = new List<Person>(totalPeople);
                 var rand = new Random();
 
+                var top = Configuration.TopFloor;
+
                 for (int i = 0; i < totalPeople; i++)
                 {
-                    var targetFloor = rand.Next(1, 20);
-                    var currentFloor = rand.Next(1, 20);
+                    var targetFloor = rand.Next(1, top);
+                    var currentFloor = rand.Next(1, top);
 
                     while (targetFloor == currentFloor)
                     {
-                        targetFloor = rand.Next(1, 20);
+                        targetFloor = rand.Next(1, top);
                     }
 
                     _peoples.Add(new Person
