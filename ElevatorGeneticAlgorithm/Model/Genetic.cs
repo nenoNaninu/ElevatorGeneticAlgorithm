@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace ElevatorGeneticAlgorithm.Model
 {
@@ -79,7 +78,7 @@ namespace ElevatorGeneticAlgorithm.Model
 
         private double EvaluateIndividualWaitingTime(List<Person> people)
         {
-            return people.Select(x => x.WaitingTime * x.WaitingTime).Sum();
+            return people.Sum(x => x.WaitingTime * x.WaitingTime);
         }
 
         private double EvaluateOverallWaitTime()
@@ -90,7 +89,7 @@ namespace ElevatorGeneticAlgorithm.Model
         private double EvaluateSigmoidWaitingTime(List<Person> people)
         {
             var t = 3.0;
-            return people.Select(x => 100 / (1 + Math.Exp(x.WaitingTime - t))).Sum();
+            return people.Sum(x => 100 / (1 + Math.Exp(x.WaitingTime - t)));
         }
 
         private List<int> RandomList(int num)

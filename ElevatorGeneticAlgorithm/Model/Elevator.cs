@@ -14,8 +14,7 @@ namespace ElevatorGeneticAlgorithm.Model
     public class Elevator
     {
         private List<Person> _carryingPeople;
-        public int CurrentFloor { get; set; }
-        public int NextFloor { get; set; }
+        public int CurrentFloor { get; private set; }
         public double Speed { get;}
         public double OpenDoorTimeSpan { get; }
 
