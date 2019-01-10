@@ -32,7 +32,7 @@ namespace ElevatorGeneticAlgorithm
                 var peoples = await Database.ReadPeoples();
 
                 //ここから評価関数
-                await GeneticAlgorithm.Learning(1, generics, peoples, pairNumber, mutationRate, genericNumber, maxCarrying, elevatorSpeed, openDoorSpeed);
+                await GeneticAlgorithm.Learning(100, generics, peoples, pairNumber, mutationRate, genericNumber, maxCarrying, elevatorSpeed, openDoorSpeed);
 
                 Console.WriteLine("finish!");
                 Console.ReadLine();

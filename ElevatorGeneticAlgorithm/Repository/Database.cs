@@ -113,7 +113,7 @@ namespace ElevatorGeneticAlgorithm.Repository
 
         public static async Task SaveGenetic(List<Genetic> genetics, int iteration)
         {
-            var targetFilePath = Path.Combine(TargetDir, $"Genetics{iteration,000}.json");
+            var targetFilePath = Path.Combine(TargetDir, $"Genetics{iteration,0:d3}.json");
 
             //それは保存しておく。
             using (var sw = new StreamWriter(targetFilePath, false, Encoding.UTF8))
