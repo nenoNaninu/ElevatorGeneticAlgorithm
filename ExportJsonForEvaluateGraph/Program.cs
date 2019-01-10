@@ -32,9 +32,12 @@ namespace ExportJsonForEvaluateGraph
 
             var outputPath = Path.Combine(path, "evalu.json");
             using (var sw = new StreamWriter(outputPath, false, Encoding.UTF8))
+            using(var ms = new MemoryStream())
             {
                 Console.WriteLine($"save people data from {outputPath}");
-                JsonSerializer.Serialize(sw.BaseStream, evaluate);
+                JsonSerializer.Serialize(ms, evaluate);
+                string json = JsonSerializer.PrettyPrint(ms.ToArray());
+                sw.Write(json);
             }
 
             Console.ReadLine();

@@ -127,9 +127,8 @@ namespace ElevatorGeneticAlgorithm
 
         public static void EvaluateGenetic(Genetic genetic, List<Person> people, int maxCarrying, double elevatorSpeed, double openDoorSpeed)
         {
-
             Elevator.Simulate(genetic, people, maxCarrying, elevatorSpeed, openDoorSpeed);
-            genetic.Evaluate(EvaluateMethod.MinimizeIndividualWaitingTime, people);
+            genetic.Evaluate(EvaluateMethod.MinimizeSigmoidWaitingTime, people);
 
             foreach (var person in people)
             {

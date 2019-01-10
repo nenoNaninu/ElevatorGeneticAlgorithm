@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-path = r"C:\Users\nari_\AppData\Local\ElevatorGA\20190110184321\evalu.json"
+path = r"C:\Users\nari_\AppData\Local\ElevatorGA\20190110190357\evalu.json"
 file = open(path,encoding="utf-8")
 print(file)
 json = json.load(file)
