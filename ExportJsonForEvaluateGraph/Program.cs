@@ -31,6 +31,7 @@ namespace ExportJsonForEvaluateGraph
             }
 
             var outputPath = Path.Combine(path, "evalu.json");
+
             using (var sw = new StreamWriter(outputPath, false, Encoding.UTF8))
             using(var ms = new MemoryStream())
             {

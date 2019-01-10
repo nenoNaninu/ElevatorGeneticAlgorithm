@@ -23,6 +23,7 @@ namespace ElevatorGeneticAlgorithm.Model
             var sortedGenetics = genetics.OrderBy(x => x.EvaluationValue).ToList();
             var evaluSum = sortedGenetics.Sum(x => x.EvaluationValue);
             var probabilityPreparation = sortedGenetics.Select(x => evaluSum / x.EvaluationValue).ToList();
+
             _sum = probabilityPreparation.Sum();
 
             double countup = 0;
