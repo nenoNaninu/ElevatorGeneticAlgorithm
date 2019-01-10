@@ -10,6 +10,7 @@ namespace ElevatorGeneticAlgorithm.Model
     {
         MinimizeIndividualWaitingTime,
         MinimizeOverallWaitTime,
+        MinimizeSigmoidWaitingTime,
     }
 
     public class Genetic : IEnumerable<int>
@@ -64,6 +65,11 @@ namespace ElevatorGeneticAlgorithm.Model
             {
                 return EvaluateOverallWaitTime();
             }
+            else if (method == EvaluateMethod.MinimizeSigmoidWaitingTime)
+            {
+                EvaluationValue = EvaluateSigmoidWaitingTime(people);
+                return EvaluationValue;
+            }
             else
             {
                 return -1;
@@ -79,6 +85,12 @@ namespace ElevatorGeneticAlgorithm.Model
         private double EvaluateOverallWaitTime()
         {
             return -1;
+        }
+
+        private double EvaluateSigmoidWaitingTime(List<Person> people)
+        {
+            var t = 3.0;
+            return people.Select(x => 100 / (1 + Math.Exp(x.WaitingTime - t))).Sum();
         }
 
         private List<int> RandomList(int num)
