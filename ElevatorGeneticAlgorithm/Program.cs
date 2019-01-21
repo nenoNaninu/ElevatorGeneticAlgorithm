@@ -8,10 +8,8 @@ namespace ElevatorGeneticAlgorithm
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Task.Run(async () =>
-            {
                 var totalPeopleNum = Database.Configuration.TotalPeopleNumber;
                 var genericNumber = Database.Configuration.GenericNumber;
                 var pairNumber = Database.Configuration.PairNumberOfCrossoverParents;
@@ -36,8 +34,6 @@ namespace ElevatorGeneticAlgorithm
 
                 Console.WriteLine("finish!");
                 Console.ReadLine();
-
-            }).Wait();
         }
     }
 }
